@@ -28,6 +28,19 @@ const TextLayer100KExample = {
   }
 };
 
+const TextLayer100KAutoWrappingExample = {
+  layer: TextLayer,
+  getData: dataSamples.getPoints100K,
+  props: {
+    id: 'text-layer-100k',
+    maxWidth: 100,
+    getText: x => 'text-layer-auto-wrapping-100k',
+    getPosition: x => x,
+    getColor: x => [0, 0, 200],
+    sizeScale: 1
+  }
+};
+
 // METER MODE EXAMPLES
 
 const PointCloudLayerExample = {
@@ -209,6 +222,7 @@ export default {
     'ScreenGridLayer (1M)': ScreenGridLayerPerfExample('1M', dataSamples.getPoints1M),
     'ScreenGridLayer (5M)': ScreenGridLayerPerfExample('5M', dataSamples.getPoints5M),
     'ScreenGridLayer (10M)': ScreenGridLayerPerfExample('10M', dataSamples.getPoints10M),
-    'TextLayer (100K)': TextLayer100KExample
+    'TextLayer (100K)': TextLayer100KExample,
+    'TextLayer (100K Auto Wrapping)': TextLayer100KAutoWrappingExample
   }
 };

@@ -58,6 +58,8 @@ const DEFAULT_LINE_HEIGHT = 1.0;
 
 const FONT_SETTINGS_PROPS = ['fontSize', 'buffer', 'sdf', 'radius', 'cutoff'];
 
+const DEFAULT_WORD_BREAK = 'break-word';
+
 const defaultProps = {
   billboard: true,
   sizeScale: 1,
@@ -70,6 +72,10 @@ const defaultProps = {
   fontWeight: DEFAULT_FONT_WEIGHT,
   lineHeight: DEFAULT_LINE_HEIGHT,
   fontSettings: {},
+
+  // auto wrapping options
+  wordBreak: null,
+  maxWidth: null,
 
   getText: {type: 'accessor', value: x => x.text},
   getPosition: {type: 'accessor', value: x => x.position},
@@ -88,16 +94,23 @@ export default class TextLayer extends CompositeLayer {
     };
   }
 
+  // eslint-disable-next-line complexity
   updateState({props, oldProps, changeFlags}) {
     const fontChanged = this.fontChanged(oldProps, props);
+
     if (fontChanged) {
       this.updateFontAtlas({oldProps, props});
     }
 
-    const textChanged =
-      changeFlags.dataChanged ||
-      fontChanged ||
+    const styleChanged =
       props.lineHeight !== oldProps.lineHeight ||
+      props.wordBreak !== oldProps.wordBreak ||
+      props.maxWidth !== oldProps.maxWidth;
+
+    const textChanged =
+      fontChanged ||
+      styleChanged ||
+      changeFlags.dataChanged ||
       (changeFlags.updateTriggersChanged &&
         (changeFlags.updateTriggersChanged.all || changeFlags.updateTriggersChanged.getText));
 
@@ -180,7 +193,17 @@ export default class TextLayer extends CompositeLayer {
 
   /* eslint-disable no-loop-func */
   transformStringToLetters(dataRange = {}) {
-    const {data, lineHeight, getText} = this.props;
+    const {
+      data,
+      wordBreak,
+      maxWidth,
+      lineHeight,
+      getText,
+      fontSettings,
+      fontFamily,
+      fontWeight
+    } = this.props;
+    const {fontSize} = fontSettings;
     const {iconMapping} = this.state;
     const {startRow, endRow} = dataRange;
     const {iterable, objectInfo} = createIterable(data, startRow, endRow);
@@ -195,7 +218,23 @@ export default class TextLayer extends CompositeLayer {
       objectInfo.index++;
       const text = getText(object, objectInfo);
       if (text) {
-        transformParagraph(text, lineHeight, iconMapping, transformCharacter, transformedData);
+        const props = {
+          paragraph: text,
+          iconMapping,
+          transformCharacter,
+
+          fontFamily,
+          fontWeight,
+          fontSize: fontSize || DEFAULT_FONT_SIZE,
+          lineHeight
+        };
+
+        if (maxWidth) {
+          props.wordBreak = wordBreak || DEFAULT_WORD_BREAK;
+          props.maxWidth = maxWidth;
+        }
+
+        transformParagraph(props, transformedData);
       }
     }
 
