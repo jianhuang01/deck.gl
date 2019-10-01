@@ -198,12 +198,8 @@ export default class TextLayer extends CompositeLayer {
       wordBreak,
       maxWidth,
       lineHeight,
-      getText,
-      fontSettings,
-      fontFamily,
-      fontWeight
+      getText
     } = this.props;
-    const {fontSize} = fontSettings;
     const {iconMapping} = this.state;
     const {startRow, endRow} = dataRange;
     const {iterable, objectInfo} = createIterable(data, startRow, endRow);
@@ -222,10 +218,6 @@ export default class TextLayer extends CompositeLayer {
           paragraph: text,
           iconMapping,
           transformCharacter,
-
-          fontFamily,
-          fontWeight,
-          fontSize: fontSize || DEFAULT_FONT_SIZE,
           lineHeight
         };
 
