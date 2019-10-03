@@ -123,7 +123,12 @@ test('TextLayer - utils#transformParagraph - single line', t => {
   ];
 
   transformParagraph(
-    {paragraph: text, lineHeight, iconMapping, transformCharacter},
+    text,
+    lineHeight,
+    null,
+    null,
+    iconMapping,
+    transformCharacter,
     transformedData
   );
 
@@ -170,7 +175,12 @@ test('TextLayer - utils#transformParagraph - multiple lines', t => {
   ];
 
   transformParagraph(
-    {paragraph: text, lineHeight, iconMapping, transformCharacter},
+    text,
+    lineHeight,
+    null,
+    null,
+    iconMapping,
+    transformCharacter,
     transformedData
   );
   t.deepEqual(transformedData, expected);
@@ -216,7 +226,12 @@ test('TextLayer - utils#transformParagraph - multiple lines with line height', t
   ];
 
   transformParagraph(
-    {paragraph: text, lineHeight, iconMapping, transformCharacter},
+    text,
+    lineHeight,
+    null,
+    null,
+    iconMapping,
+    transformCharacter,
     transformedData
   );
   t.deepEqual(transformedData, expected);
@@ -292,7 +307,12 @@ test('TextLayer - utils#transformParagraph - transformedData not empty', t => {
   ];
 
   transformParagraph(
-    {paragraph: text, lineHeight, iconMapping, transformCharacter},
+    text,
+    lineHeight,
+    null,
+    null,
+    iconMapping,
+    transformCharacter,
     transformedData
   );
   t.deepEqual(transformedData, expected);
@@ -320,17 +340,15 @@ test('TextLayer - utils#autoWrapping', t => {
   };
 
   let expected = {rows: ['Amy: ', 'Hello, ', 'Ben.'], startCharIndex: 12, offsetLeft: 7};
-  let actual = autoWrapping({text, wordBreak: 'break-word', maxWidth: 15, iconMapping});
-
+  let actual = autoWrapping(text, 'break-word', 15, iconMapping);
   t.deepEqual(actual, expected, 'Should match break word.');
 
   expected = {rows: ['Amy: ', 'Hell', 'o, Ben.'], startCharIndex: 9, offsetLeft: 10};
-  actual = autoWrapping({text, wordBreak: 'break-word', maxWidth: 10, iconMapping});
+  actual = autoWrapping(text, 'break-word', 10, iconMapping);
   t.deepEqual(actual, expected, 'Should break the word when it is longer than maxWidth.');
 
   expected = {rows: ['Amy: H', 'ello, Be', 'n.'], startCharIndex: 14, offsetLeft: 4};
-  actual = autoWrapping({text, wordBreak: 'break-all', maxWidth: 15, iconMapping});
-
+  actual = autoWrapping(text, 'break-all', 15, iconMapping);
   t.deepEqual(actual, expected, 'Should match break all.');
 
   t.end();

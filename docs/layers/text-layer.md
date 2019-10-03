@@ -151,7 +151,7 @@ Options:
 
 ##### `wordBreak` (String, optional)
 
-* Default: `null`
+* Default: `break-word`
 
 Available options are `break-all` and `break-word`. `maxWidth` has to be provided to use `wordBreak`.
 
@@ -159,7 +159,7 @@ Available options are `break-all` and `break-word`. `maxWidth` has to be provide
 
 * Default: `null`
 
-If `maxWidth` is provided, then `wordBreak` is default to be `word-break`.
+`maxWidth` is used together with `break-word` for wrapping text. The value of `maxWidth` specifies the width limit to break the text into multiple lines.
  
 ### Data Accessors
 

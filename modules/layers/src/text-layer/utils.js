@@ -89,12 +89,18 @@ function getTextWidth(text, mapping) {
   return width;
 }
 
-function getTextGroups(text, wordBreak, iconMapping) {
+// eslint-disable-next-line max-statements
+export function autoWrapping(text, wordBreak, maxWidth, iconMapping) {
+  if (!text) {
+    return null;
+  }
+
+  // 1. break text into groups
   let groups = null;
   if (wordBreak === 'break-word') {
-    groups = text.split(' ');
     let index = 0;
-    return groups.map(g => {
+    // split words with white space
+    groups = text.split(' ').map(g => {
       const characters = g || ' ';
       const group = {
         text: characters,
@@ -106,32 +112,22 @@ function getTextGroups(text, wordBreak, iconMapping) {
       index += characters.length + 1;
       return group;
     });
+  } else {
+    // otherwise `break-all`
+    groups = Array.from(text).map((g, i) => {
+      return {
+        text: g,
+        startCharIndex: i,
+        width: getTextWidth(g, iconMapping)
+      };
+    });
   }
 
-  // otherwise break-all
-  groups = Array.from(text);
-  return groups.map((g, i) => {
-    return {
-      text: g,
-      startCharIndex: i,
-      width: getTextWidth(g, iconMapping)
-    };
-  });
-}
-
-export function autoWrapping({text, wordBreak, maxWidth, iconMapping}) {
-  if (!text) {
-    return null;
-  }
-
-  // 1. break text into groups
-  const groups = getTextGroups(text, wordBreak, iconMapping);
-
+  // 2. figure out where to break lines
   let rows = [];
   let startCharIndex = 0;
   let offsetLeft = 0;
 
-  // 2. figure out where to break lines
   for (let i = 0; i < groups.length; i++) {
     const group = groups[i];
     let groupWidth = group.width;
@@ -144,12 +140,7 @@ export function autoWrapping({text, wordBreak, maxWidth, iconMapping}) {
 
       // if a single group is bigger than maxWidth, then `break-all`
       if (groupWidth > maxWidth) {
-        const subResults = autoWrapping({
-          text: group.text,
-          wordBreak: 'break-all',
-          maxWidth,
-          iconMapping
-        });
+        const subResults = autoWrapping(group.text, 'break-all', maxWidth, iconMapping);
 
         // add all the sub rows to results except last row
         rows = rows.concat(subResults.rows.slice(0, subResults.rows.length - 1));
@@ -171,7 +162,7 @@ export function autoWrapping({text, wordBreak, maxWidth, iconMapping}) {
   };
 }
 
-export function transformRow({row, iconMapping, lineHeight, rowOffsetTop}) {
+export function transformRow(row, iconMapping, lineHeight, rowOffsetTop) {
   let offsetLeft = 0;
   let rowHeight = 0;
 
@@ -208,13 +199,12 @@ export function transformRow({row, iconMapping, lineHeight, rowOffsetTop}) {
 
 /**
  * Transform a text paragraph to an array of characters, each character contains
- * @param props:
- *   - paragraph {String}
- *   - iconMapping {Object} character mapping table for retrieving a character from font atlas
- *   - transformCharacter {Function} callback to transform a single character
- *   - lineHeight {Number} css line-height
- *   - wordBreak {String} css word-break option
- *   - maxWidth {number} css max-width of sizethe element
+ * @param paragraph: {String}
+ * @param iconMapping {Object} character mapping table for retrieving a character from font atlas
+ * @param transformCharacter {Function} callback to transform a single character
+ * @param lineHeight {Number} css line-height
+ * @param wordBreak {String} css word-break option
+ * @param maxWidth {number} css max-width
  * @param transformedData {Array} output transformed data array, each datum contains
  *   - text: character
  *   - index: character index in the paragraph
@@ -224,16 +214,14 @@ export function transformRow({row, iconMapping, lineHeight, rowOffsetTop}) {
  *   - rowSize: [rowWidth, rowHeight] size of the row
  *   - len: length of the paragraph
  */
+// eslint-disable-next-line max-params
 export function transformParagraph(
-  {
-    paragraph,
-    iconMapping,
-    transformCharacter,
-    // styling
-    lineHeight,
-    wordBreak,
-    maxWidth
-  },
+  paragraph,
+  lineHeight,
+  wordBreak,
+  maxWidth,
+  iconMapping,
+  transformCharacter,
   transformedData = []
 ) {
   if (!paragraph) {
@@ -249,18 +237,17 @@ export function transformParagraph(
   paragraph.split('\n').forEach(line => {
     let rows = [line];
     if (wordBreakEnabled) {
-      const wrapped = autoWrapping({text: line, wordBreak, maxWidth, iconMapping});
+      const wrapped = autoWrapping(line, wordBreak, maxWidth, iconMapping);
       rows = wrapped.rows;
     }
 
     rows.forEach(row => {
-      const {rowWidth, rowHeight, characters} = transformRow({
+      const {rowWidth, rowHeight, characters} = transformRow(
         row,
         iconMapping,
         lineHeight,
-        maxWidth,
         rowOffsetTop
-      });
+      );
 
       const rowSize = [rowWidth, rowHeight];
 

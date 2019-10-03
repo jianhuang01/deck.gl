@@ -74,7 +74,7 @@ const defaultProps = {
   fontSettings: {},
 
   // auto wrapping options
-  wordBreak: null,
+  wordBreak: DEFAULT_WORD_BREAK,
   maxWidth: null,
 
   getText: {type: 'accessor', value: x => x.text},
@@ -193,13 +193,7 @@ export default class TextLayer extends CompositeLayer {
 
   /* eslint-disable no-loop-func */
   transformStringToLetters(dataRange = {}) {
-    const {
-      data,
-      wordBreak,
-      maxWidth,
-      lineHeight,
-      getText
-    } = this.props;
+    const {data, wordBreak, maxWidth, lineHeight, getText} = this.props;
     const {iconMapping} = this.state;
     const {startRow, endRow} = dataRange;
     const {iterable, objectInfo} = createIterable(data, startRow, endRow);
@@ -214,19 +208,15 @@ export default class TextLayer extends CompositeLayer {
       objectInfo.index++;
       const text = getText(object, objectInfo);
       if (text) {
-        const props = {
-          paragraph: text,
+        transformParagraph(
+          text,
+          lineHeight,
+          wordBreak,
+          maxWidth,
           iconMapping,
           transformCharacter,
-          lineHeight
-        };
-
-        if (maxWidth) {
-          props.wordBreak = wordBreak || DEFAULT_WORD_BREAK;
-          props.maxWidth = maxWidth;
-        }
-
-        transformParagraph(props, transformedData);
+          transformedData
+        );
       }
     }
 
